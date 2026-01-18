@@ -8,41 +8,25 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@400;500;600&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #fbfbf9; }
+        body { font-family: 'Inter', sans-serif; background-color: #fbfbf9; padding-bottom: 80px; }
         h1, .serif { font-family: 'Playfair Display', serif; }
-        
-        .search-glass {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-
-        /* Prevent layout shift */
-        #resultsGrid { min-height: 400px; }
-        
-        /* Custom scrollbar for category row */
+        .search-glass { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(8px); border: 1px solid rgba(0,0,0,0.1); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .nav-active { color: #1e293b; border-top: 3px solid #1e293b; }
     </style>
 </head>
 <body class="text-stone-800">
 
-    <header class="relative h-[25vh] md:h-[30vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden border-b border-stone-200">
+    <header class="relative h-[22vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden border-b border-stone-200">
         <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1350')] bg-cover bg-center"></div>
-        <div class="absolute inset-0 bg-slate-900/70"></div>
-        
+        <div class="absolute inset-0 bg-slate-900/75"></div>
         <div class="relative z-10 w-full max-w-4xl">
-            <h1 class="text-2xl md:text-4xl text-white mb-4 italic">Lir and Co.</h1>
-            
+            <h1 class="text-2xl text-white mb-3 italic">Lir and Co.</h1>
             <div class="max-w-xl mx-auto px-2">
                 <div class="relative shadow-xl">
-                    <input type="text" id="searchInput" 
-                        placeholder="Auteur, titre, thème..." 
-                        class="w-full py-3 px-5 pr-12 rounded-xl text-md focus:outline-none search-glass"
-                    >
-                    <div class="absolute right-2 top-1/2 -translate-y-1/2 bg-slate-800 text-white p-2 rounded-lg">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </div>
+                    <input type="text" id="searchInput" placeholder="Auteur, titre..." class="w-full py-2.5 px-4 pr-12 rounded-lg text-sm focus:outline-none search-glass">
+                    <div class="absolute right-2 top-1/2 -translate-y-1/2 bg-slate-800 text-white p-2 rounded-md"><i class="fa-solid fa-magnifying-glass text-xs"></i></div>
                 </div>
             </div>
         </div>
@@ -50,18 +34,28 @@
 
     <main class="max-w-7xl mx-auto px-4 py-4">
         <div class="flex overflow-x-auto gap-2 pb-4 no-scrollbar -mx-2 px-2">
-            <button onclick="renderBooks(mockBooks)" class="whitespace-nowrap bg-slate-800 text-white px-4 py-1.5 rounded-full text-xs font-bold">Tous</button>
-            <button onclick="filterBy('Pépites d\'occasion')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm">✨ Occasion</button>
-            <button onclick="filterBy('Livres Rares')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm">📜 Raretés</button>
-            <button onclick="filterBy('Moins de 3€')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm">🏷️ < 3€</button>
-            <button onclick="filterBy('Jeunesse')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm">🧸 Jeunesse</button>
+            <button onclick="renderBooks(mockBooks)" class="whitespace-nowrap bg-slate-800 text-white px-4 py-1.5 rounded-full text-[10px] font-bold">Tous</button>
+            <button onclick="filterBy('Pépites d\'occasion')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-[10px] font-medium shadow-sm">✨ Occasion</button>
+            <button onclick="filterBy('Livres Rares')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-[10px] font-medium shadow-sm">📜 Raretés</button>
+            <button onclick="filterBy('Moins de 3€')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-[10px] font-medium shadow-sm">🏷️ < 3€</button>
+            <button onclick="filterBy('Jeunesse')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-[10px] font-medium shadow-sm">🧸 Jeunesse</button>
         </div>
 
-        <div id="resultsInfo" class="serif italic text-sm text-stone-500 mb-4">Notre sélection actuelle...</div>
+        <div id="resultsInfo" class="serif italic text-xs text-stone-500 mb-3">Notre sélection...</div>
 
-        <div id="resultsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-            </div>
+        <div id="resultsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
     </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 flex justify-around items-center h-16 z-50">
+        <a href="recherche.html" class="flex flex-col items-center pt-2 nav-active w-full">
+            <i class="fa-solid fa-search text-xl"></i>
+            <span class="text-[10px] mt-1 font-bold">Recherche</span>
+        </a>
+        <a href="index.html" class="flex flex-col items-center pt-2 text-stone-400 w-full">
+            <i class="fa-solid fa-microphone-lines text-xl"></i>
+            <span class="text-[10px] mt-1 font-bold">Critique</span>
+        </a>
+    </nav>
 
     <script>
         const mockBooks = [
@@ -71,53 +65,43 @@
             { id: 4, title: "Vingt mille lieues...", author: "Jules Verne", category: "Pépites d'occasion", price: 3.50, tag: "Aventure", img: "https://images.unsplash.com/photo-1476275466078-4007374efbbe?w=400" },
             { id: 5, title: "Cyrano de Bergerac", author: "Edmond Rostand", category: "Moins de 3€", price: 2.90, tag: "Théâtre", img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
             { id: 6, title: "Les Misérables", author: "Victor Hugo", category: "Pépites d'occasion", price: 4.50, tag: "Chef-d'œuvre", img: "https://images.unsplash.com/photo-1531988042231-d39a9cc12a9a?w=400" },
-            { id: 7, title: "Madame Bovary", author: "Gustave Flaubert", category: "Moins de 3€", price: 2.50, tag: "Réalisme", img: "https://images.unsplash.com/photo-1491843384429-18343d92c4b0?w=400" },
+            { id: 7, title: "Madame Bovary", author: "Gustave Flaubert", category: "Moins de 3€", price: 2.50, tag: "Réalisme", img: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400" },
             { id: 8, title: "Fables de La Fontaine", author: "Jean de La Fontaine", category: "Jeunesse", price: 6, tag: "Poésie", img: "https://images.unsplash.com/photo-1589998059171-988d887df646?w=400" },
             { id: 9, title: "Tintin au Tibet", author: "Hergé", category: "Pépites d'occasion", price: 8, tag: "BD", img: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400" },
-            { id: 10, title: "Le Rouge et le Noir", author: "Stendhal", category: "Moins de 3€", price: 2.80, tag: "Occasion", img: "https://images.unsplash.com/photo-1543004218-ee141104638a?w=400" },
-            { id: 11, title: "L'Herbier de France (1890)", author: "Botanique", category: "Livres Rares", price: 150, tag: "Rare", img: "https://images.unsplash.com/photo-1518373714866-3f1478910cc0?w=400" },
+            { id: 10, title: "Le Rouge et le Noir", author: "Stendhal", category: "Moins de 3€", price: 2.80, tag: "Occasion", img: "https://images.unsplash.com/photo-1513001900722-370f803f498d?w=400" },
+            { id: 11, title: "L'Herbier (1890)", author: "Botanique", category: "Livres Rares", price: 150, tag: "Rare", img: "https://images.unsplash.com/photo-1518373714866-3f1478910cc0?w=400" },
             { id: 12, title: "Contes de Grimm", author: "Frères Grimm", category: "Jeunesse", price: 12, tag: "Illustré", img: "https://images.unsplash.com/photo-1515091943-9d5c0ad475af?w=400" },
             { id: 13, title: "Candide", author: "Voltaire", category: "Moins de 3€", price: 2.00, tag: "Philosophie", img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
             { id: 14, title: "Germinal", author: "Émile Zola", category: "Pépites d'occasion", price: 3.20, tag: "Histoire", img: "https://images.unsplash.com/photo-1521056787327-165dc2a32836?w=400" }
         ];
 
-        const searchInput = document.getElementById('searchInput');
-        const grid = document.getElementById('resultsGrid');
-        const info = document.getElementById('resultsInfo');
-
         function renderBooks(books) {
-            if (books.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-10 text-center text-stone-400 italic">Aucune pépite trouvée...</div>`;
-                return;
-            }
+            const grid = document.getElementById('resultsGrid');
             grid.innerHTML = books.map(b => `
-                <div class="bg-white rounded-lg shadow-sm border border-stone-200 overflow-hidden flex flex-col h-full">
-                    <div class="h-32 md:h-48 overflow-hidden bg-stone-100">
-                        <img src="${b.img}" class="w-full h-full object-cover opacity-90">
-                    </div>
-                    <div class="p-3 flex flex-col flex-grow">
-                        <h3 class="text-xs md:text-sm font-bold text-slate-900 leading-tight line-clamp-2">${b.title}</h3>
-                        <p class="text-[10px] md:text-xs text-stone-400 italic mt-0.5">${b.author}</p>
+                <div class="bg-white rounded shadow-sm border border-stone-200 overflow-hidden flex flex-col h-full">
+                    <div class="h-32 overflow-hidden"><img src="${b.img}" class="w-full h-full object-cover"></div>
+                    <div class="p-2 flex flex-col flex-grow">
+                        <h3 class="text-[11px] font-bold line-clamp-2">${b.title}</h3>
+                        <p class="text-[9px] text-stone-400 italic">${b.author}</p>
                         <div class="mt-auto pt-2 flex justify-between items-center">
-                            <span class="text-sm md:text-lg font-black">${b.price.toFixed(2)}€</span>
-                            <span class="text-[8px] uppercase font-bold text-slate-400 border border-stone-200 px-1 rounded">${b.tag}</span>
+                            <span class="text-xs font-black">${b.price.toFixed(2)}€</span>
+                            <span class="text-[7px] border px-1 rounded uppercase font-bold text-stone-400">${b.tag}</span>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        searchInput.addEventListener('input', (e) => {
+        document.getElementById('searchInput').addEventListener('input', (e) => {
             const q = e.target.value.toLowerCase();
             const filtered = mockBooks.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
             renderBooks(filtered);
-            info.innerText = q ? `${filtered.length} pépites trouvées` : "Notre sélection actuelle...";
+            document.getElementById('resultsInfo').innerText = q ? `${filtered.length} pépites` : "Notre sélection...";
         });
 
         function filterBy(cat) {
-            const filtered = mockBooks.filter(b => b.category === cat || b.tag === cat);
-            renderBooks(filtered);
-            info.innerText = cat;
+            renderBooks(mockBooks.filter(b => b.category === cat || b.tag === cat));
+            document.getElementById('resultsInfo').innerText = cat;
         }
 
         window.onload = () => renderBooks(mockBooks);
