@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recherche Pépites - Lir and Co</title>
+    <title>Lir and Co. - Recherche</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -11,40 +11,36 @@
         body { font-family: 'Inter', sans-serif; background-color: #fbfbf9; }
         h1, .serif { font-family: 'Playfair Display', serif; }
         
-        /* Glassmorphism for the search bar */
         .search-glass {
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(0,0,0,0.1);
         }
 
-        /* Smooth reveal for cards */
-        .book-card {
-            animation: fadeIn 0.4s ease forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* Prevent layout shift */
+        #resultsGrid { min-height: 400px; }
+        
+        /* Custom scrollbar for category row */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="text-stone-800">
 
-    <header class="relative min-h-[35vh] md:min-h-[45vh] flex flex-col items-center justify-end pb-8 text-center px-4 overflow-hidden border-b border-stone-200">
-        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=1350')] bg-cover bg-center"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-slate-900/40 to-slate-900/80"></div>
+    <header class="relative h-[25vh] md:h-[30vh] flex flex-col items-center justify-center text-center px-4 overflow-hidden border-b border-stone-200">
+        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1350')] bg-cover bg-center"></div>
+        <div class="absolute inset-0 bg-slate-900/70"></div>
         
         <div class="relative z-10 w-full max-w-4xl">
-            <h1 class="text-3xl md:text-5xl text-white mb-6 italic drop-shadow-md">On Aime Lire</h1>
+            <h1 class="text-2xl md:text-4xl text-white mb-4 italic">Lir and Co.</h1>
             
-            <div class="sticky top-4 z-50 max-w-2xl mx-auto px-2">
-                <div class="relative drop-shadow-xl">
+            <div class="max-w-xl mx-auto px-2">
+                <div class="relative shadow-xl">
                     <input type="text" id="searchInput" 
-                        placeholder="Chercher un livre..." 
-                        class="w-full py-4 px-6 pr-14 rounded-xl text-md focus:outline-none search-glass shadow-lg"
+                        placeholder="Auteur, titre, thème..." 
+                        class="w-full py-3 px-5 pr-12 rounded-xl text-md focus:outline-none search-glass"
                     >
-                    <div class="absolute right-2 top-1/2 -translate-y-1/2 bg-slate-800 text-white p-2.5 rounded-lg">
+                    <div class="absolute right-2 top-1/2 -translate-y-1/2 bg-slate-800 text-white p-2 rounded-lg">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </div>
                 </div>
@@ -52,75 +48,76 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <div class="flex items-center justify-between mb-6">
-            <div id="resultsInfo" class="serif italic text-lg text-stone-600">
-                Nos pépites du jour...
-            </div>
-            <div class="hidden md:flex items-center gap-2">
-                <span class="text-[9px] uppercase font-bold tracking-widest text-stone-400">Meilisearch Active</span>
-                <div class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></div>
-            </div>
+    <main class="max-w-7xl mx-auto px-4 py-4">
+        <div class="flex overflow-x-auto gap-2 pb-4 no-scrollbar -mx-2 px-2">
+            <button onclick="renderBooks(mockBooks)" class="whitespace-nowrap bg-slate-800 text-white px-4 py-1.5 rounded-full text-xs font-bold">Tous</button>
+            <button onclick="filterBy('Pépites d\'occasion')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm">✨ Occasion</button>
+            <button onclick="filterBy('Livres Rares')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm">📜 Raretés</button>
+            <button onclick="filterBy('Moins de 3€')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm">🏷️ < 3€</button>
+            <button onclick="filterBy('Jeunesse')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm">🧸 Jeunesse</button>
         </div>
 
-        <div class="flex overflow-x-auto gap-2 pb-6 no-scrollbar -mx-4 px-4 mb-2">
-            <button onclick="filterBy('Pépites d\'occasion')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm active:bg-stone-100">✨ Occasion</button>
-            <button onclick="filterBy('Livres Rares')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm active:bg-stone-100">📜 Raretés</button>
-            <button onclick="filterBy('Moins de 3€')" class="whitespace-nowrap bg-white border border-stone-200 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm active:bg-stone-100">🏷️ Petits prix</button>
-            <button onclick="renderBooks(mockBooks)" class="whitespace-nowrap bg-slate-800 text-white px-4 py-1.5 rounded-full text-xs font-medium">Voir Tout</button>
-        </div>
+        <div id="resultsInfo" class="serif italic text-sm text-stone-500 mb-4">Notre sélection actuelle...</div>
 
-        <div id="resultsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+        <div id="resultsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             </div>
     </main>
 
     <script>
-        // Mock data remains the same
         const mockBooks = [
-            { id: 1, title: "Mickey Mouse (1950)", author: "Walt Disney", category: "Livres Rares", price: 120, img: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400", tag: "Rare" },
-            { id: 2, title: "Le Petit Prince", author: "Saint-Exupéry", category: "Pépites d'occasion", price: 2.50, img: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400", tag: "Top" },
-            { id: 3, title: "L'Etranger", author: "Albert Camus", category: "Coup de cœur", price: 5, img: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400", tag: "Essentiel" },
-            { id: 4, title: "Vingt mille lieues...", author: "Jules Verne", category: "Pépites d'occasion", price: 3, img: "https://images.unsplash.com/photo-1476275466078-4007374efbbe?w=400", tag: "Classique" },
-            { id: 5, title: "Cyrano de Bergerac", author: "Edmond Rostand", category: "Moins de 3€", price: 2.90, img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400", tag: "Théâtre" }
+            { id: 1, title: "Mickey Mouse (1950)", author: "Walt Disney", category: "Livres Rares", price: 120, tag: "Rare", img: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400" },
+            { id: 2, title: "Le Petit Prince", author: "Saint-Exupéry", category: "Pépites d'occasion", price: 2.50, tag: "Culte", img: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400" },
+            { id: 3, title: "L'Etranger", author: "Albert Camus", category: "Pépites d'occasion", price: 5, tag: "Classique", img: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400" },
+            { id: 4, title: "Vingt mille lieues...", author: "Jules Verne", category: "Pépites d'occasion", price: 3.50, tag: "Aventure", img: "https://images.unsplash.com/photo-1476275466078-4007374efbbe?w=400" },
+            { id: 5, title: "Cyrano de Bergerac", author: "Edmond Rostand", category: "Moins de 3€", price: 2.90, tag: "Théâtre", img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+            { id: 6, title: "Les Misérables", author: "Victor Hugo", category: "Pépites d'occasion", price: 4.50, tag: "Chef-d'œuvre", img: "https://images.unsplash.com/photo-1531988042231-d39a9cc12a9a?w=400" },
+            { id: 7, title: "Madame Bovary", author: "Gustave Flaubert", category: "Moins de 3€", price: 2.50, tag: "Réalisme", img: "https://images.unsplash.com/photo-1491843384429-18343d92c4b0?w=400" },
+            { id: 8, title: "Fables de La Fontaine", author: "Jean de La Fontaine", category: "Jeunesse", price: 6, tag: "Poésie", img: "https://images.unsplash.com/photo-1589998059171-988d887df646?w=400" },
+            { id: 9, title: "Tintin au Tibet", author: "Hergé", category: "Pépites d'occasion", price: 8, tag: "BD", img: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400" },
+            { id: 10, title: "Le Rouge et le Noir", author: "Stendhal", category: "Moins de 3€", price: 2.80, tag: "Occasion", img: "https://images.unsplash.com/photo-1543004218-ee141104638a?w=400" },
+            { id: 11, title: "L'Herbier de France (1890)", author: "Botanique", category: "Livres Rares", price: 150, tag: "Rare", img: "https://images.unsplash.com/photo-1518373714866-3f1478910cc0?w=400" },
+            { id: 12, title: "Contes de Grimm", author: "Frères Grimm", category: "Jeunesse", price: 12, tag: "Illustré", img: "https://images.unsplash.com/photo-1515091943-9d5c0ad475af?w=400" },
+            { id: 13, title: "Candide", author: "Voltaire", category: "Moins de 3€", price: 2.00, tag: "Philosophie", img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=400" },
+            { id: 14, title: "Germinal", author: "Émile Zola", category: "Pépites d'occasion", price: 3.20, tag: "Histoire", img: "https://images.unsplash.com/photo-1521056787327-165dc2a32836?w=400" }
         ];
 
+        const searchInput = document.getElementById('searchInput');
+        const grid = document.getElementById('resultsGrid');
+        const info = document.getElementById('resultsInfo');
+
         function renderBooks(books) {
-            const resultsGrid = document.getElementById('resultsGrid');
             if (books.length === 0) {
-                resultsGrid.innerHTML = `<div class="col-span-full py-10 text-center text-stone-400 italic">Aucune pépite trouvée...</div>`;
+                grid.innerHTML = `<div class="col-span-full py-10 text-center text-stone-400 italic">Aucune pépite trouvée...</div>`;
                 return;
             }
-            resultsGrid.innerHTML = books.map(book => `
-                <div class="book-card bg-white rounded-lg shadow-sm border border-stone-200 overflow-hidden flex flex-col h-full">
-                    <div class="relative h-40 md:h-56 overflow-hidden">
-                        <img src="${book.img}" class="w-full h-full object-cover">
+            grid.innerHTML = books.map(b => `
+                <div class="bg-white rounded-lg shadow-sm border border-stone-200 overflow-hidden flex flex-col h-full">
+                    <div class="h-32 md:h-48 overflow-hidden bg-stone-100">
+                        <img src="${b.img}" class="w-full h-full object-cover opacity-90">
                     </div>
-                    <div class="p-3 md:p-5 flex flex-col flex-grow">
-                        <h3 class="text-sm md:text-lg font-bold text-slate-900 leading-tight line-clamp-2">${book.title}</h3>
-                        <p class="text-stone-400 text-[10px] md:text-sm italic mt-1">${book.author}</p>
-                        <div class="mt-auto pt-3 flex justify-between items-center">
-                            <span class="text-lg md:text-xl font-black text-slate-900">${book.price.toFixed(2)}€</span>
-                            <button class="bg-slate-800 text-white p-2 rounded-md text-[10px] font-bold">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
+                    <div class="p-3 flex flex-col flex-grow">
+                        <h3 class="text-xs md:text-sm font-bold text-slate-900 leading-tight line-clamp-2">${b.title}</h3>
+                        <p class="text-[10px] md:text-xs text-stone-400 italic mt-0.5">${b.author}</p>
+                        <div class="mt-auto pt-2 flex justify-between items-center">
+                            <span class="text-sm md:text-lg font-black">${b.price.toFixed(2)}€</span>
+                            <span class="text-[8px] uppercase font-bold text-slate-400 border border-stone-200 px-1 rounded">${b.tag}</span>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Search logic
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtered = mockBooks.filter(b => b.title.toLowerCase().includes(query) || b.author.toLowerCase().includes(query));
+        searchInput.addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            const filtered = mockBooks.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
             renderBooks(filtered);
-            document.getElementById('resultsInfo').innerText = query ? `${filtered.length} résultats` : "Nos pépites du jour...";
+            info.innerText = q ? `${filtered.length} pépites trouvées` : "Notre sélection actuelle...";
         });
 
-        function filterBy(category) {
-            const filtered = mockBooks.filter(b => b.category === category || b.tag === category);
+        function filterBy(cat) {
+            const filtered = mockBooks.filter(b => b.category === cat || b.tag === cat);
             renderBooks(filtered);
-            document.getElementById('resultsInfo').innerText = category;
+            info.innerText = cat;
         }
 
         window.onload = () => renderBooks(mockBooks);
