@@ -3,73 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Review Prototype - V3</title>
+    <title>Critique Express - Librairie Sidecar</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; max-width: 500px; margin: 10px auto; padding: 15px; background-color: #f4f7f6; }
-        h2 { color: #2c3e50; text-align: center; margin-bottom: 20px; }
-        #reader { width: 100%; border-radius: 8px; overflow: hidden; border: 2px solid #3498db; margin-bottom: 10px; background: #000; }
-        .info-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        .controls { display: flex; gap: 8px; margin-bottom: 10px; }
-        button { flex: 1; padding: 12px 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em; }
-        #start-record { background: #e74c3c; color: white; }
-        #clear-btn { background: #95a5a6; color: white; }
-        #copy-btn { background: #2ecc71; color: white; }
-        #manual-search { background: #34495e; color: white; padding: 8px; flex: 0 0 90px; }
-        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
-        textarea { width: 100%; height: 160px; border: 1px solid #ddd; border-radius: 5px; padding: 10px; box-sizing: border-box; font-size: 15px; margin-top: 10px; line-height: 1.4; }
-        .label { font-weight: bold; color: #7f8c8d; font-size: 0.75em; text-transform: uppercase; margin-bottom: 5px; display: block; }
-        .book-display { margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
+        :root { --primary: #3498db; --danger: #e74c3c; --success: #2ecc71; --dark: #2c3e50; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 500px; margin: 10px auto; padding: 15px; background-color: #f8f9fa; color: var(--dark); }
+        h2 { text-align: center; margin-bottom: 20px; font-weight: 300; }
+        #reader { width: 100%; border-radius: 12px; overflow: hidden; border: 2px solid var(--primary); background: #000; margin-bottom: 10px; }
+        .info-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .status-bar { font-size: 0.8em; text-align: center; margin-bottom: 10px; color: var(--primary); font-weight: bold; }
+        .controls { display: flex; gap: 10px; margin-bottom: 10px; }
+        button { flex: 1; padding: 14px 5px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: transform 0.1s; }
+        button:active { transform: scale(0.98); }
+        #start-record { background: var(--danger); color: white; }
+        #clear-btn { background: #bdc3c7; color: white; }
+        #copy-btn { background: var(--success); color: white; }
+        #manual-search { background: var(--dark); color: white; flex: 0 0 100px; }
+        input[type="text"] { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        textarea { width: 100%; height: 180px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; box-sizing: border-box; font-size: 16px; margin-top: 10px; line-height: 1.5; resize: none; }
+        .label { font-weight: bold; color: #95a5a6; font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+        .book-info-text { font-size: 1.1em; font-weight: 600; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
     <h2>Critique Express 📚</h2>
     
+    <div id="status" class="status-bar">Prêt à scanner...</div>
     <div id="reader"></div>
     
     <div class="info-card">
-        <span class="label">Saisie Manuelle ou Scan :</span>
-        <div style="display: flex; gap: 5px; margin-bottom: 15px;">
-            <input type="text" id="manual-isbn" placeholder="ISBN (ex: 97910...)">
+        <span class="label">Identification du Livre</span>
+        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+            <input type="text" id="manual-isbn" placeholder="ISBN ou Code-barres">
             <button id="manual-search">Chercher</button>
         </div>
-
-        <div class="book-display">
-            <span class="label">Livre détecté :</span>
-            <div id="book-title" style="font-size: 1.1em; font-weight: bold; color: #2c3e50;">En attente de scan...</div>
-            <div id="book-author" style="color: #7f8c8d;">---</div>
-        </div>
+        <div id="book-title" class="book-info-text">Aucun livre sélectionné</div>
+        <div id="book-author" style="color: #7f8c8d;">Scannez le code au dos du livre</div>
     </div>
 
     <div class="info-card">
-        <span class="label">Ma Critique :</span>
+        <span class="label">Transcription de la Critique</span>
         <div class="controls">
             <button id="start-record">🎤 Dictée</button>
             <button id="clear-btn">🗑️ Effacer</button>
             <button id="copy-btn">📋 Copier</button>
         </div>
-        <textarea id="review-output" placeholder="Parlez maintenant..."></textarea>
+        <textarea id="review-output" placeholder="Appuyez sur Dictée et parlez normalement..."></textarea>
     </div>
 
     <script>
         const html5QrCode = new Html5Qrcode("reader");
-        let currentBook = { title: "Inconnu", author: "Inconnu" };
+        const statusDisp = document.getElementById('status');
+        let currentBook = { title: "", author: "" };
 
-        // --- BARCODE SCANNER CONFIG ---
-        const qrConfig = { 
-            fps: 20, 
-            qrbox: { width: 300, height: 150 },
-            formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ] 
-        };
+        // --- SCANNER ---
+        const qrConfig = { fps: 20, qrbox: { width: 280, height: 150 }, formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ] };
         
-        html5QrCode.start({ facingMode: "environment" }, qrConfig, (decodedText) => {
-            lookupBook(decodedText);
-            if (navigator.vibrate) navigator.vibrate(100);
-            html5QrCode.stop(); 
-        }).catch(err => console.error("Camera error:", err));
+        function startScan() {
+            html5QrCode.start({ facingMode: "environment" }, qrConfig, (text) => {
+                statusDisp.innerText = "Code détecté ! Recherche...";
+                lookupBook(text);
+                if (navigator.vibrate) navigator.vibrate(100);
+                html5QrCode.stop();
+            }).catch(e => statusDisp.innerText = "Caméra inactive");
+        }
+        startScan();
 
         // --- MANUAL SEARCH ---
-        document.getElementById('manual-search').onclick = () => {
-            const input = document.getElementById('manual-isbn').value.trim();
-            if (input.length >= 10) {
+        document.getElementById('manual-search').onclick = () => lookupBook(document.getElementById('manual-isbn').value);
+
+        // --- API LOOKUP ---
+        async function lookupBook(isbn) {
+            const cleanIsbn = isbn.replace(/[- ]/g, "");
+            try {
+                const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanIsbn}`);
+                const data = await res.json();
+                if (data.totalItems > 0) {
+                    const info = data.items[0].volumeInfo;
+                    currentBook.title = info.title;
+                    currentBook.author = info.authors ? info.authors.join(', ') : "Auteur inconnu";
+                    document.getElementById('book-title').innerText = currentBook.title;
+                    document.getElementById('book-author').innerText = currentBook.author;
+                    statusDisp.innerText = "Livre identifié.";
+                } else {
+                    alert("Livre non trouvé.");
+                }
+            } catch (e) { alert("Erreur réseau."); }
+        }
+
+        // --- SPEECH ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const rec = new SpeechRecognition();
+            rec.lang = 'fr-FR';
+            rec.continuous = true;
+            rec.interimResults = false;
+
+            document.getElementById('start-record').onclick = () => {
+                try {
+                    rec.start();
+                    document.getElementById('start-record').innerText = "🔴 Écoute...";
+                    statusDisp.innerText = "Dictée en cours...";
+                } catch (e) { rec.stop(); }
+            };
+
+            rec.onresult = (e) => {
+                let text = "";
+                for (let i = e.resultIndex; i < e.results.length; ++i) {
+                    if (e.results[i].isFinal) text += e.results[i][0].transcript + " ";
+                }
+                document.getElementById('review-output').value += text;
+            };
+
+            rec.onend = () => {
+                document.getElementById('start-record').innerText = "🎤 Dictée";
+                statusDisp.innerText = "Dictée terminée.";
+            };
+        }
+
+        // --- ACTIONS ---
+        document.getElementById('clear-btn').onclick = () => {
+            if(confirm("Effacer ?")) document.getElementById('review-output').value = "";
+        };
+
+        document.getElementById('copy-btn').onclick = () => {
+            const content = `Critique : ${currentBook.title} (${currentBook.author})\n\n${document.getElementById('review-output').value}`;
+            navigator.clipboard.writeText(content).then(() => alert("Copié !"));
+        };
+    </script>
+</body>
+</html>
