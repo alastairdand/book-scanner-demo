@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Librairie - Assistant Critique</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --sepia: #f4ece1; --ink: #2c3e50; --paper: #ffffff; --accent: #8e44ad; --danger: #c0392b; }
         body { font-family: 'Georgia', serif; max-width: 500px; margin: 0 auto; padding: 20px; background-color: var(--sepia); color: var(--ink); }
@@ -53,11 +55,11 @@
     </div>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 flex justify-around items-center h-16 z-50">
-        <a href="recherche.html" class="flex flex-col items-center pt-2 nav-active w-full">
+        <a href="recherche.html" class="flex flex-col items-center pt-2 text-stone-400 w-full hover:text-slate-800">
             <i class="fa-solid fa-search text-xl"></i>
             <span class="text-[10px] mt-1 font-bold">Recherche</span>
         </a>
-        <a href="index.html" class="flex flex-col items-center pt-2 text-stone-400 w-full">
+        <a href="index.html" class="flex flex-col items-center pt-2 text-slate-900 border-t-2 border-slate-900 w-full">
             <i class="fa-solid fa-microphone-lines text-xl"></i>
             <span class="text-[10px] mt-1 font-bold">Critique</span>
         </a>
