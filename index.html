@@ -52,6 +52,17 @@
         <textarea id="review-output" placeholder="Racontez pourquoi ce livre est unique..."></textarea>
     </div>
 
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 flex justify-around items-center h-16 z-50">
+        <a href="recherche.html" class="flex flex-col items-center pt-2 nav-active w-full">
+            <i class="fa-solid fa-search text-xl"></i>
+            <span class="text-[10px] mt-1 font-bold">Recherche</span>
+        </a>
+        <a href="index.html" class="flex flex-col items-center pt-2 text-stone-400 w-full">
+            <i class="fa-solid fa-microphone-lines text-xl"></i>
+            <span class="text-[10px] mt-1 font-bold">Critique</span>
+        </a>
+    </nav>
+
     <script>
         const html5QrCode = new Html5Qrcode("reader");
         const statusDisp = document.getElementById('status');
