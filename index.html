@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Review Prototype - V2</title>
+    <title>Book Review Prototype - V3</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 20px auto; padding: 15px; background-color: #f4f7f6; }
-        h2 { color: #2c3e50; text-align: center; }
+        body { font-family: 'Segoe UI', sans-serif; max-width: 500px; margin: 10px auto; padding: 15px; background-color: #f4f7f6; }
+        h2 { color: #2c3e50; text-align: center; margin-bottom: 20px; }
         #reader { width: 100%; border-radius: 8px; overflow: hidden; border: 2px solid #3498db; margin-bottom: 10px; background: #000; }
         .info-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        .controls { display: flex; gap: 10px; margin-bottom: 10px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; }
-        button:active { opacity: 0.7; }
+        .controls { display: flex; gap: 8px; margin-bottom: 10px; }
+        button { flex: 1; padding: 12px 5px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.9em; }
         #start-record { background: #e74c3c; color: white; }
+        #clear-btn { background: #95a5a6; color: white; }
         #copy-btn { background: #2ecc71; color: white; }
-        #manual-search { background: #34495e; color: white; padding: 8px; flex: 0 0 100px; }
+        #manual-search { background: #34495e; color: white; padding: 8px; flex: 0 0 90px; }
         input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
-        textarea { width: 100%; height: 150px; border: 1px solid #ddd; border-radius: 5px; padding: 10px; box-sizing: border-box; font-size: 14px; margin-top: 10px; }
-        .label { font-weight: bold; color: #7f8c8d; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        textarea { width: 100%; height: 160px; border: 1px solid #ddd; border-radius: 5px; padding: 10px; box-sizing: border-box; font-size: 15px; margin-top: 10px; line-height: 1.4; }
+        .label { font-weight: bold; color: #7f8c8d; font-size: 0.75em; text-transform: uppercase; margin-bottom: 5px; display: block; }
         .book-display { margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
     </style>
 </head>
@@ -31,13 +31,13 @@
     <div class="info-card">
         <span class="label">Saisie Manuelle ou Scan :</span>
         <div style="display: flex; gap: 5px; margin-bottom: 15px;">
-            <input type="text" id="manual-isbn" placeholder="Entrez ISBN (ex: 97910...)">
+            <input type="text" id="manual-isbn" placeholder="ISBN (ex: 97910...)">
             <button id="manual-search">Chercher</button>
         </div>
 
         <div class="book-display">
             <span class="label">Livre détecté :</span>
-            <div id="book-title" style="font-size: 1.1em; font-weight: bold; color: #2c3e50;">En attente...</div>
+            <div id="book-title" style="font-size: 1.1em; font-weight: bold; color: #2c3e50;">En attente de scan...</div>
             <div id="book-author" style="color: #7f8c8d;">---</div>
         </div>
     </div>
@@ -45,10 +45,11 @@
     <div class="info-card">
         <span class="label">Ma Critique :</span>
         <div class="controls">
-            <button id="start-record">🎤 Commencer Dictée</button>
-            <button id="copy-btn">📋 Copier Tout</button>
+            <button id="start-record">🎤 Dictée</button>
+            <button id="clear-btn">🗑️ Effacer</button>
+            <button id="copy-btn">📋 Copier</button>
         </div>
-        <textarea id="review-output" placeholder="Parlez maintenant, votre texte s'affichera ici..."></textarea>
+        <textarea id="review-output" placeholder="Parlez maintenant..."></textarea>
     </div>
 
     <script>
@@ -72,73 +73,3 @@
         document.getElementById('manual-search').onclick = () => {
             const input = document.getElementById('manual-isbn').value.trim();
             if (input.length >= 10) {
-                lookupBook(input);
-            } else {
-                alert("Veuillez entrer un code ISBN valide.");
-            }
-        };
-
-        // --- GOOGLE BOOKS API LOOKUP ---
-        async function lookupBook(isbn) {
-            const cleanIsbn = isbn.replace(/[- ]/g, "");
-            try {
-                const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanIsbn}`);
-                const data = await res.json();
-                if (data.totalItems > 0) {
-                    const info = data.items[0].volumeInfo;
-                    currentBook.title = info.title;
-                    currentBook.author = info.authors ? info.authors.join(', ') : "Auteur inconnu";
-                    
-                    document.getElementById('book-title').innerText = currentBook.title;
-                    document.getElementById('book-author').innerText = currentBook.author;
-                    document.getElementById('manual-isbn').value = cleanIsbn;
-                } else {
-                    alert("Livre non trouvé.");
-                }
-            } catch (e) { alert("Erreur de connexion."); }
-        }
-
-        // --- WEB SPEECH API (VOICE TO TEXT) ---
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'fr-FR';
-            recognition.continuous = true;
-            recognition.interimResults = true;
-
-            document.getElementById('start-record').onclick = () => {
-                try {
-                    recognition.start();
-                    document.getElementById('start-record').innerText = "🔴 Écoute...";
-                    document.getElementById('start-record').style.background = "#c0392b";
-                } catch (e) { recognition.stop(); }
-            };
-
-            recognition.onresult = (event) => {
-                let transcript = "";
-                for (let i = 0; i < event.results.length; i++) {
-                    transcript += event.results[i][0].transcript;
-                }
-                document.getElementById('review-output').value = transcript;
-            };
-
-            recognition.onend = () => {
-                document.getElementById('start-record').innerText = "🎤 Commencer Dictée";
-                document.getElementById('start-record').style.background = "#e74c3c";
-            };
-        } else {
-            alert("La dictée vocale n'est pas supportée par ce navigateur. Utilisez Chrome ou Safari.");
-        }
-
-        // --- COPY TO CLIPBOARD ---
-        document.getElementById('copy-btn').onclick = () => {
-            const text = document.getElementById('review-output').value;
-            const finalString = `Critique de : ${currentBook.title} par ${currentBook.author}\n\n${text}`;
-            
-            navigator.clipboard.writeText(finalString).then(() => {
-                alert("Copié !");
-            });
-        };
-    </script>
-</body>
-</html>
