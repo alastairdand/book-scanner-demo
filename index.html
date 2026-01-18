@@ -3,79 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Critique Express - Librairie Sidecar</title>
+    <title>Librairie - Assistant Critique</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        :root { --primary: #3498db; --danger: #e74c3c; --success: #2ecc71; --dark: #2c3e50; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 500px; margin: 10px auto; padding: 15px; background-color: #f8f9fa; color: var(--dark); }
-        h2 { text-align: center; margin-bottom: 20px; font-weight: 300; }
-        #reader { width: 100%; border-radius: 12px; overflow: hidden; border: 2px solid var(--primary); background: #000; margin-bottom: 10px; }
-        .info-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .status-bar { font-size: 0.8em; text-align: center; margin-bottom: 10px; color: var(--primary); font-weight: bold; }
-        .controls { display: flex; gap: 10px; margin-bottom: 10px; }
-        button { flex: 1; padding: 14px 5px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: transform 0.1s; }
-        button:active { transform: scale(0.98); }
-        #start-record { background: var(--danger); color: white; }
-        #clear-btn { background: #bdc3c7; color: white; }
-        #copy-btn { background: var(--success); color: white; }
-        #manual-search { background: var(--dark); color: white; flex: 0 0 100px; }
-        input[type="text"] { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
-        textarea { width: 100%; height: 180px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; box-sizing: border-box; font-size: 16px; margin-top: 10px; line-height: 1.5; resize: none; }
-        .label { font-weight: bold; color: #95a5a6; font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
-        .book-info-text { font-size: 1.1em; font-weight: 600; margin-bottom: 4px; }
+        :root { --sepia: #f4ece1; --ink: #2c3e50; --paper: #ffffff; --accent: #8e44ad; --danger: #c0392b; }
+        body { font-family: 'Georgia', serif; max-width: 500px; margin: 0 auto; padding: 20px; background-color: var(--sepia); color: var(--ink); }
+        h2 { text-align: center; border-bottom: 2px solid var(--ink); padding-bottom: 10px; font-variant: small-caps; }
+        #reader { width: 100%; border-radius: 8px; overflow: hidden; border: 3px solid var(--ink); background: #000; margin-bottom: 15px; }
+        .info-card { background: var(--paper); padding: 20px; border-radius: 4px; box-shadow: 5px 5px 0px rgba(0,0,0,0.1); border: 1px solid #ddd; margin-bottom: 20px; }
+        .status-bar { font-family: sans-serif; font-size: 0.8em; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .controls { display: flex; gap: 8px; margin-bottom: 10px; }
+        button { flex: 1; padding: 12px; border: 1px solid var(--ink); border-radius: 4px; cursor: pointer; font-weight: bold; font-family: sans-serif; transition: all 0.2s; }
+        #start-record { background: var(--ink); color: white; }
+        #rescan-btn { background: var(--accent); color: white; border: none; }
+        #clear-btn { background: transparent; color: var(--ink); }
+        #copy-btn { background: #27ae60; color: white; border: none; }
+        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; font-family: sans-serif; }
+        textarea { width: 100%; height: 150px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; font-size: 16px; margin-top: 10px; font-family: 'Georgia', serif; line-height: 1.6; }
+        .label { font-family: sans-serif; font-weight: bold; color: #7f8c8d; font-size: 0.7em; text-transform: uppercase; display: block; margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-    <h2>Critique Express 📚</h2>
+    <h2>Le Sidecar du Libraire</h2>
     
-    <div id="status" class="status-bar">Prêt à scanner...</div>
+    <div id="status" class="status-bar">Prêt pour un nouveau trésor...</div>
     <div id="reader"></div>
     
+    <button id="rescan-btn">📸 Nouveau Scan / Réactiver Caméra</button>
+
     <div class="info-card">
-        <span class="label">Identification du Livre</span>
-        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-            <input type="text" id="manual-isbn" placeholder="ISBN ou Code-barres">
-            <button id="manual-search">Chercher</button>
+        <span class="label">Référence du Livre</span>
+        <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+            <input type="text" id="manual-isbn" placeholder="ISBN (ex: 978...)">
+            <button id="manual-search" style="flex:0 0 80px;">OK</button>
         </div>
-        <div id="book-title" class="book-info-text">Aucun livre sélectionné</div>
-        <div id="book-author" style="color: #7f8c8d;">Scannez le code au dos du livre</div>
+        <div id="book-title" style="font-size: 1.2em; font-weight: bold;">Titre du livre</div>
+        <div id="book-author" style="font-style: italic;">Auteur</div>
     </div>
 
     <div class="info-card">
-        <span class="label">Transcription de la Critique</span>
+        <span class="label">Votre Note de Lecture</span>
         <div class="controls">
-            <button id="start-record">🎤 Dictée</button>
-            <button id="clear-btn">🗑️ Effacer</button>
-            <button id="copy-btn">📋 Copier</button>
+            <button id="start-record">🎤 Dicter</button>
+            <button id="clear-btn">Effacer</button>
+            <button id="copy-btn">Copier</button>
         </div>
-        <textarea id="review-output" placeholder="Appuyez sur Dictée et parlez normalement..."></textarea>
+        <textarea id="review-output" placeholder="Racontez pourquoi ce livre est unique..."></textarea>
     </div>
 
     <script>
         const html5QrCode = new Html5Qrcode("reader");
         const statusDisp = document.getElementById('status');
-        let currentBook = { title: "", author: "" };
+        let currentBook = { title: "Non spécifié", author: "Inconnu" };
 
-        // --- SCANNER ---
         const qrConfig = { fps: 20, qrbox: { width: 280, height: 150 }, formatsToSupport: [ Html5QrcodeSupportedFormats.EAN_13 ] };
         
         function startScan() {
             html5QrCode.start({ facingMode: "environment" }, qrConfig, (text) => {
-                statusDisp.innerText = "Code détecté ! Recherche...";
                 lookupBook(text);
                 if (navigator.vibrate) navigator.vibrate(100);
                 html5QrCode.stop();
-            }).catch(e => statusDisp.innerText = "Caméra inactive");
+            }).catch(e => statusDisp.innerText = "Caméra en attente");
         }
+        
         startScan();
 
-        // --- MANUAL SEARCH ---
+        document.getElementById('rescan-btn').onclick = () => {
+            document.getElementById('book-title').innerText = "Titre du livre";
+            document.getElementById('book-author').innerText = "Auteur";
+            document.getElementById('manual-isbn').value = "";
+            statusDisp.innerText = "Recherche d'un nouveau code...";
+            startScan();
+        };
+
         document.getElementById('manual-search').onclick = () => lookupBook(document.getElementById('manual-isbn').value);
 
-        // --- API LOOKUP ---
         async function lookupBook(isbn) {
             const cleanIsbn = isbn.replace(/[- ]/g, "");
+            statusDisp.innerText = "Recherche de l'ouvrage...";
             try {
                 const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${cleanIsbn}`);
                 const data = await res.json();
@@ -85,14 +91,13 @@
                     currentBook.author = info.authors ? info.authors.join(', ') : "Auteur inconnu";
                     document.getElementById('book-title').innerText = currentBook.title;
                     document.getElementById('book-author').innerText = currentBook.author;
-                    statusDisp.innerText = "Livre identifié.";
+                    statusDisp.innerText = "Livre trouvé !";
                 } else {
-                    alert("Livre non trouvé.");
+                    statusDisp.innerText = "Livre introuvable dans la base.";
                 }
-            } catch (e) { alert("Erreur réseau."); }
+            } catch (e) { statusDisp.innerText = "Erreur de connexion."; }
         }
 
-        // --- SPEECH ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (SpeechRecognition) {
             const rec = new SpeechRecognition();
@@ -104,7 +109,6 @@
                 try {
                     rec.start();
                     document.getElementById('start-record').innerText = "🔴 Écoute...";
-                    statusDisp.innerText = "Dictée en cours...";
                 } catch (e) { rec.stop(); }
             };
 
@@ -117,19 +121,17 @@
             };
 
             rec.onend = () => {
-                document.getElementById('start-record').innerText = "🎤 Dictée";
-                statusDisp.innerText = "Dictée terminée.";
+                document.getElementById('start-record').innerText = "🎤 Dicter";
             };
         }
 
-        // --- ACTIONS ---
         document.getElementById('clear-btn').onclick = () => {
-            if(confirm("Effacer ?")) document.getElementById('review-output').value = "";
+            if(confirm("Effacer la critique ?")) document.getElementById('review-output').value = "";
         };
 
         document.getElementById('copy-btn').onclick = () => {
-            const content = `Critique : ${currentBook.title} (${currentBook.author})\n\n${document.getElementById('review-output').value}`;
-            navigator.clipboard.writeText(content).then(() => alert("Copié !"));
+            const content = `Critique de : ${currentBook.title} - ${currentBook.author}\n\n${document.getElementById('review-output').value}`;
+            navigator.clipboard.writeText(content).then(() => alert("Texte prêt à être collé !"));
         };
     </script>
 </body>
